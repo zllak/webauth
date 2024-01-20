@@ -1,0 +1,21 @@
+[workspace]
+members = [
+  "store-redis",
+  "store-sqlx-postgresql",
+  "store-sqlx-sqlite",
+  "webauth",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+homepage = "https://github.com/zllak/webauth"
+repository = "https://github.com/zllak/webauth"
+keywords = ["web", "authentication"]
+authors = ["Thomas Meson <zllak@hycik.org>"]
+description = "Web authentication primitives for Rust"
+license = "MIT"
+readme = "README.md"
+
+[workspace.dependencies]
