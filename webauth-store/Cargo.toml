@@ -1,5 +1,5 @@
 [package]
-name = "store-redis"
+name = "webauth-store"
 version.workspace = true
 edition.workspace = true
 homepage.workspace = true

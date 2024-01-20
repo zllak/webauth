@@ -1,5 +1,5 @@
 [package]
-name = "store-sqlx-sqlite"
+name = "webauth-store-sqlx-sqlite"
 version.workspace = true
 edition.workspace = true
 homepage.workspace = true
