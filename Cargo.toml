@@ -1,9 +1,8 @@
 [workspace]
 members = [
   "webauth-store-redis",
-  "webauth-store-sqlx-postgresql",
-  "webauth-store-sqlx-sqlite",
-  "webauth", "webauth-store",
+  "webauth-store-sqlx",
+  "webauth",
 ]
 resolver = "2"
 

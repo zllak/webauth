@@ -1,5 +1,5 @@
 [package]
-name = "webauth-store-sqlx-postgresql"
+name = "webauth-store-sqlx"
 version.workspace = true
 edition.workspace = true
 homepage.workspace = true
@@ -11,4 +11,10 @@ license.workspace = true
 readme.workspace = true
 publish = false
 
+[features]
+sqlite = ["sqlx/sqlx-sqlite"]
+postgres = ["sqlx/sqlx-postgres"]
+mysql = ["sqlx/sqlx-mysql"]
+
 [dependencies]
+sqlx = { version = "0.7", default-features = false, features = ["any", "json", "macros", "tls-rustls"] }
