@@ -12,3 +12,4 @@ readme.workspace = true
 publish = true
 
 [dependencies]
+thiserror.workspace = true
