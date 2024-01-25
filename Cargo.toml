@@ -18,4 +18,6 @@ license = "MIT"
 readme = "README.md"
 
 [workspace.dependencies]
+serde = { version = "1.0", default-features = false, features = ["std", "serde_derive"] }
+serde_json = { version = "1.0", default-features = false, features = ["std"] }
 thiserror = { version = "1.0", default-features = false }

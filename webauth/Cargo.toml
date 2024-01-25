@@ -12,4 +12,7 @@ readme.workspace = true
 publish = true
 
 [dependencies]
+serde.workspace = true
+serde_json.workspace = true
 thiserror.workspace = true
+uuid = { version = "1.0", default-features = false, features = ["v4", "fast-rng", "serde", "std"] }
