@@ -18,5 +18,14 @@ TODO
 ## Security and Standards
 TODO
 
+## Implementing a custom `Store`
+
+We use resources like `Session`, `User`, ... and you can provide your own `Store`
+implementation for those resources.
+We provide some implementations but maybe you want to roll your own `User`, or
+you use another database we have not implemented.
+
+All you need is to implement the trait `Store`.
+
 ## Contributing
 TODO
