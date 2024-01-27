@@ -1,5 +1,8 @@
+#[cfg(feature = "axum-core")]
+mod axum;
+
 mod store;
-pub use self::store::Store;
+pub use self::store::{Store, StoreError};
 
 mod auth;
 pub use self::auth::{AuthBackend, AuthUser};

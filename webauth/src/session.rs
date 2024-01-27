@@ -121,6 +121,7 @@ impl Session {
 // ----------------------------------------------------------------------------
 
 /// Manages sessions and implements Service
+#[derive(Debug, Clone)]
 pub struct SessionManager<Service, Store>
 where
     Store: crate::Store<Object = Session, Id = Uuid>,

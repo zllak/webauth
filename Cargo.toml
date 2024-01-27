@@ -1,8 +1,9 @@
 [workspace]
 members = [
+  "webauth",
+  "webauth-store-memory",
   "webauth-store-redis",
   "webauth-store-sqlx",
-  "webauth",
 ]
 resolver = "2"
 
@@ -26,3 +27,4 @@ tower-cookies = { version = "0.10", default-features = false }
 tower-layer = { version = "0.3", default-features = false }
 tower-service = { version = "0.3", default-features = false }
 tracing = { version = "0.1", default-features = false, features = ["std", "attributes", "log"] }
+uuid = { version = "1.0", default-features = false, features = ["v4", "fast-rng", "serde", "std"] }
