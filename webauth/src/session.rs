@@ -37,11 +37,11 @@ pub struct Session {
     modified: Arc<AtomicBool>,
 }
 
-// Expires in one week from now
+/// Default expiration for a `Session` (one week)
 pub const DEFAULT_EXPIRATION: Duration = Duration::from_secs(60 * 60 * 24 * 7);
 
 impl Session {
-    // Creates a new `Session`, providing when the session will expire.
+    /// Creates a new `Session`, providing when the session will expire.
     pub fn new(expires_in: Duration) -> Self {
         Self {
             uid: Uuid::new_v4(),
@@ -52,24 +52,29 @@ impl Session {
         }
     }
 
-    // Returns the uniquer identifier of this `Session`.
+    /// Returns the uniquer identifier of this `Session`.
     pub const fn uid(&self) -> &Uuid {
         &self.uid
     }
 
-    // Returns when the `Session` expires.
+    /// Returns when the `Session` expires.
     pub const fn expires_at(&self) -> &SystemTime {
         &self.expires_at
     }
 
-    // Returns if the session is modified
+    /// Returns if the session is modified
     pub fn is_modified(&self) -> bool {
         self.modified.load(Ordering::Acquire)
     }
 
-    // Regenerate a new unique identifier for the session.
-    // This can be useful to keep a session while changing it's unique identifier.
-    // Returns the replaced Uuid.
+    /// Mark the session as saved
+    pub fn mark_saved(&self) {
+        self.modified.store(false, Ordering::Release)
+    }
+
+    /// Regenerate a new unique identifier for the session.
+    /// This can be useful to keep a session while changing it's unique identifier.
+    /// Returns the replaced Uuid.
     pub fn cycle_uid(&mut self) -> Uuid {
         let old_uid = self.uid;
 
@@ -78,7 +83,7 @@ impl Session {
         old_uid
     }
 
-    // Insert a new data in the session.
+    /// Insert a new data in the session.
     pub fn insert(&self, key: &str, value: impl Serialize) -> Result<()> {
         let mut map = self.data.lock().expect("poisoned mutex");
         map.insert(key.to_string(), serde_json::to_value(value)?);
@@ -86,8 +91,8 @@ impl Session {
         Ok(())
     }
 
-    // Get a value from the data stored in the session.
-    // Data stored must be JSON-serializable.
+    /// Get a value from the data stored in the session.
+    /// Data stored must be JSON-serializable.
     pub fn get<T: DeserializeOwned>(&self, key: &str) -> Result<Option<T>> {
         let map = self.data.lock().expect("poisoned mutex");
         map.get(key)
@@ -97,7 +102,7 @@ impl Session {
             .map_err(Into::into)
     }
 
-    // Removes an item from the data stored in the session, returning the value if any.
+    /// Removes an item from the data stored in the session, returning the value if any.
     pub fn remove<T: DeserializeOwned>(&mut self, key: &str) -> Result<Option<T>> {
         let mut map = self.data.lock().expect("poisoned mutex");
         let res = map
@@ -111,7 +116,7 @@ impl Session {
         Ok(res)
     }
 
-    // Clear all data stored
+    /// Clear all data stored
     pub fn clear(&mut self) {
         self.data.lock().expect("poisoned mutex").clear();
         self.modified.store(true, Ordering::Release);
@@ -215,6 +220,9 @@ where
                     *res.status_mut() = http::StatusCode::INTERNAL_SERVER_ERROR;
                     return Ok(res);
                 }
+                // Mark the session as saved so in case of in memory caching
+                // the next time we won't save again.
+                session.mark_saved();
 
                 // Add the cookie to the jar
                 cookies.add(Cookie::new(cookie_name, session.uid().to_string()));
