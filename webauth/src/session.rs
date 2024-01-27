@@ -217,7 +217,7 @@ where
                 }
 
                 // Add the cookie to the jar
-                cookies.add(Cookie::new("sdf", "sdf"));
+                cookies.add(Cookie::new(cookie_name, session.uid().to_string()));
             }
 
             Ok(res)
