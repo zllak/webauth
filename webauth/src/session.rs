@@ -129,7 +129,7 @@ impl Session {
 #[derive(Debug, Clone)]
 pub struct SessionManager<Service, Store>
 where
-    Store: crate::Store<Object = Session, Id = Uuid>,
+    Store: crate::store::Store<Object = Session, Id = Uuid>,
 {
     inner: Service,
     store: Store,
@@ -143,7 +143,7 @@ where
     S::Future: Send,
     ReqBody: Send + 'static,
     ResBody: Default + Send,
-    Store: crate::Store<Object = Session, Id = Uuid> + Clone + Send + 'static,
+    Store: crate::store::Store<Object = Session, Id = Uuid> + Clone + Send + 'static,
 {
     type Response = S::Response;
     type Error = S::Error;
@@ -238,7 +238,7 @@ where
 #[derive(Debug, Clone)]
 pub struct SessionManagerLayer<S>
 where
-    S: crate::Store<Object = Session, Id = Uuid>,
+    S: crate::store::Store<Object = Session, Id = Uuid>,
 {
     store: S,
     cookie_name: &'static str,
@@ -246,7 +246,7 @@ where
 
 impl<Store> SessionManagerLayer<Store>
 where
-    Store: crate::Store<Object = Session, Id = Uuid>,
+    Store: crate::store::Store<Object = Session, Id = Uuid>,
 {
     pub fn new(store: Store, cookie_name: &'static str) -> Self {
         Self { store, cookie_name }
@@ -255,7 +255,7 @@ where
 
 impl<S, Store> tower_layer::Layer<S> for SessionManagerLayer<Store>
 where
-    Store: crate::Store<Object = Session, Id = Uuid> + Clone,
+    Store: crate::store::Store<Object = Session, Id = Uuid> + Clone,
 {
     type Service = CookieManager<SessionManager<S, Store>>;
 

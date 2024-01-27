@@ -1,10 +1,10 @@
 use axum::{response::IntoResponse, routing::get, Router};
 use std::net::SocketAddr;
-use webauth::{Session, SessionManagerLayer};
+use webauth::session::{Session, SessionManagerLayer};
 use webauth_store_memory::SessionStore as MemorySessionStore;
 
 async fn root(session: Session) -> impl IntoResponse {
-    session.insert("test", "value");
+    //session.insert("test", "value");
     format!("hello world")
 }
 

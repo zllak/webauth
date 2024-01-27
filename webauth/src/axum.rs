@@ -1,4 +1,4 @@
-use crate::Session;
+use crate::session::Session;
 use axum_core::extract::FromRequestParts;
 use http::{request::Parts, StatusCode};
 

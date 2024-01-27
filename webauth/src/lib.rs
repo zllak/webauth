@@ -1,11 +1,20 @@
 #[cfg(feature = "axum-core")]
 mod axum;
 
-mod store;
-pub use self::store::{Store, StoreError};
+#[path = "./store.rs"]
+mod _store;
+pub mod store {
+    pub use super::_store::{Error, Store};
+}
 
-mod auth;
-pub use self::auth::{AuthBackend, AuthUser};
+#[path = "./auth.rs"]
+mod _auth;
+pub mod auth {
+    pub use super::_auth::{AuthBackend, AuthUser};
+}
 
-mod session;
-pub use self::session::{Session, SessionManager, SessionManagerLayer, DEFAULT_EXPIRATION};
+#[path = "./session.rs"]
+mod _session;
+pub mod session {
+    pub use super::_session::{Session, SessionManager, SessionManagerLayer, DEFAULT_EXPIRATION};
+}

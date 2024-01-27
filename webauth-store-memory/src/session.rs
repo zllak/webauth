@@ -3,7 +3,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 use uuid::Uuid;
-use webauth::{Session, Store, StoreError};
+use webauth::session::Session;
+use webauth::store::{Error, Store};
 
 #[derive(Default, Clone, Debug)]
 pub struct SessionStore {
@@ -17,7 +18,7 @@ impl Store for SessionStore {
     fn load(
         &self,
         id: &Self::Id,
-    ) -> impl std::future::Future<Output = Result<Option<Self::Object>, StoreError>> + Send {
+    ) -> impl std::future::Future<Output = Result<Option<Self::Object>, Error>> + Send {
         let map = self.sessions.lock().expect("poisoned mutex");
         let sess = map.get(id).cloned();
         async move { Ok(sess) }
@@ -27,16 +28,13 @@ impl Store for SessionStore {
         &self,
         id: &Self::Id,
         obj: &Self::Object,
-    ) -> impl std::future::Future<Output = Result<(), StoreError>> + Send {
+    ) -> impl std::future::Future<Output = Result<(), Error>> + Send {
         let mut map = self.sessions.lock().expect("poisoned mutex");
         map.insert(*id, obj.clone());
         async move { Ok(()) }
     }
 
-    fn delete(
-        &self,
-        id: &Self::Id,
-    ) -> impl std::future::Future<Output = Result<(), StoreError>> + Send {
+    fn delete(&self, id: &Self::Id) -> impl std::future::Future<Output = Result<(), Error>> + Send {
         let mut map = self.sessions.lock().expect("poisoned mutex");
         map.remove(id);
         async move { Ok(()) }

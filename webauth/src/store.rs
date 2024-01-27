@@ -1,7 +1,7 @@
 use std::future::Future;
 
 #[derive(thiserror::Error, Debug)]
-pub enum StoreError {
+pub enum Error {
     #[error("encode")]
     Encode,
     #[error("decode")]
@@ -26,16 +26,16 @@ pub trait Store {
     fn load(
         &self,
         id: &Self::Id,
-    ) -> impl Future<Output = Result<Option<Self::Object>, StoreError>> + Send;
+    ) -> impl Future<Output = Result<Option<Self::Object>, Error>> + Send;
     /// Commit the resource `Object` to the underlying store.
     /// This method should behave like an upsert.
     fn save(
         &self,
         id: &Self::Id,
         obj: &Self::Object,
-    ) -> impl Future<Output = Result<(), StoreError>> + Send;
+    ) -> impl Future<Output = Result<(), Error>> + Send;
     /// Deletes a resource `Object` by its `Id`.
     /// Method should be idempotent and return Ok(()) if the
     /// resource has already been deleted.
-    fn delete(&self, id: &Self::Id) -> impl Future<Output = Result<(), StoreError>> + Send;
+    fn delete(&self, id: &Self::Id) -> impl Future<Output = Result<(), Error>> + Send;
 }
