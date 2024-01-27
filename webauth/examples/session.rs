@@ -1,7 +1,7 @@
 use axum::{response::IntoResponse, routing::get, Router};
 use std::net::SocketAddr;
 use webauth::session::{Session, SessionManagerLayer};
-use webauth_store_memory::SessionStore as MemorySessionStore;
+use webauth_store_memory::Store;
 
 async fn root(session: Session) -> impl IntoResponse {
     //session.insert("test", "value");
@@ -10,7 +10,7 @@ async fn root(session: Session) -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() {
-    let store = MemorySessionStore::default();
+    let store = Store::new();
     let layer = SessionManagerLayer::new(store, "uid");
 
     let app = Router::new().route("/", get(root).layer(layer));

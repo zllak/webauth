@@ -1,2 +1,2 @@
 mod session;
-pub use self::session::SessionStore;
+pub use self::session::Store;
