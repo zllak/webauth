@@ -43,7 +43,6 @@ where
                 let sess: &Session = unsafe { std::mem::transmute::<&Object, &Session>(sess) };
                 if sess.expires_at() < &SystemTime::now() {
                     // Session is expired
-                    println!("EXPIRED");
                     obj = None;
                 }
             }
