@@ -12,7 +12,12 @@ readme.workspace = true
 publish = true
 
 [dependencies]
+http.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
+tower-cookies.workspace = true
+tower-layer.workspace = true
+tower-service.workspace = true
+tracing.workspace = true
 uuid = { version = "1.0", default-features = false, features = ["v4", "fast-rng", "serde", "std"] }

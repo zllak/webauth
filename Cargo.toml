@@ -18,6 +18,11 @@ license = "MIT"
 readme = "README.md"
 
 [workspace.dependencies]
+http = { version = "1.0", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["std", "serde_derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["std"] }
 thiserror = { version = "1.0", default-features = false }
+tower-cookies = { version = "0.10", default-features = false }
+tower-layer = { version = "0.3", default-features = false }
+tower-service = { version = "0.3", default-features = false }
+tracing = { version = "0.1", default-features = false, features = ["std", "attributes", "log"] }

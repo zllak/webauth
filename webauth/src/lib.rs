@@ -5,4 +5,4 @@ mod auth;
 pub use self::auth::{AuthBackend, AuthUser};
 
 mod session;
-pub use self::session::{Session, DEFAULT_EXPIRATION};
+pub use self::session::{Session, SessionManager, SessionManagerLayer, DEFAULT_EXPIRATION};
