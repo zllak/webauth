@@ -13,7 +13,10 @@ use std::{
     task::{Context, Poll},
     time::{Duration, SystemTime},
 };
-use tower_cookies::{Cookie, CookieManager, Cookies};
+use tower_cookies::{
+    cookie::{Expiration, SameSite},
+    Cookie, CookieManager, Cookies,
+};
 use tower_service::Service;
 use uuid::Uuid;
 
@@ -225,7 +228,14 @@ where
                 session.mark_saved();
 
                 // Add the cookie to the jar
-                cookies.add(Cookie::new(cookie_name, session.uid().to_string()));
+                cookies.add(
+                    Cookie::build((cookie_name, session.uid().to_string()))
+                        .secure(true)
+                        .http_only(true)
+                        .same_site(SameSite::None)
+                        .expires(Expiration::DateTime((*session.expires_at()).into()))
+                        .build(),
+                );
             }
 
             Ok(res)
