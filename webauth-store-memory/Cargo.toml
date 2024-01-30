@@ -11,5 +11,4 @@ license.workspace = true
 readme.workspace = true
 
 [dependencies]
-uuid.workspace = true
 webauth = { path = "../webauth" }

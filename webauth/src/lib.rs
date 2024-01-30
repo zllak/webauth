@@ -17,4 +17,6 @@ pub mod auth {
 mod _session;
 pub mod session {
     pub use super::_session::{Session, SessionManager, SessionManagerLayer, DEFAULT_EXPIRATION};
+    // Re-exports the Uuid we use
+    pub use uuid::Uuid;
 }
