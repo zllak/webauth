@@ -23,8 +23,7 @@ http = { version = "1.0", default-features = false }
 serde = { version = "1.0", default-features = false, features = ["std", "serde_derive"] }
 serde_json = { version = "1.0", default-features = false, features = ["std"] }
 thiserror = { version = "1.0", default-features = false }
+tower = { version = "0.4", default-features = false, features = ["util"] }
 tower-cookies = { version = "0.10", default-features = false }
-tower-layer = { version = "0.3", default-features = false }
-tower-service = { version = "0.3", default-features = false }
 tracing = { version = "0.1", default-features = false, features = ["std", "attributes", "log"] }
 uuid = { version = "1.0", default-features = false, features = ["v4", "fast-rng", "serde", "std"] }

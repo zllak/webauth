@@ -13,11 +13,11 @@ use std::{
     task::{Context, Poll},
     time::{Duration, SystemTime},
 };
+use tower::{Service, ServiceExt};
 use tower_cookies::{
     cookie::{Expiration, SameSite},
     Cookie, CookieManager, Cookies,
 };
-use tower_service::Service;
 use uuid::Uuid;
 
 #[derive(thiserror::Error, Debug)]
@@ -263,7 +263,7 @@ where
     }
 }
 
-impl<S, Store> tower_layer::Layer<S> for SessionManagerLayer<Store>
+impl<S, Store> tower::Layer<S> for SessionManagerLayer<Store>
 where
     Store: crate::store::Store<Object = Session, Id = Uuid> + Clone,
 {
@@ -275,6 +275,7 @@ where
             store: self.store.clone(),
             cookie_name: self.cookie_name,
         };
+        manager.map_response(|response| response);
 
         CookieManager::new(manager)
     }

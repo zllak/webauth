@@ -18,9 +18,8 @@ http.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 thiserror.workspace = true
+tower.workspace = true
 tower-cookies.workspace = true
-tower-layer.workspace = true
-tower-service.workspace = true
 tracing.workspace = true
 uuid.workspace = true
 
