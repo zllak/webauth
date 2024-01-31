@@ -12,6 +12,7 @@ readme.workspace = true
 publish = true
 
 [dependencies]
+argon2 = { version = "0.5", default-features = false, features = ["alloc", "password-hash", "rand"], optional = true }
 async-trait = { version = "0.1", default-features = false, optional = true }
 axum-core = { version = "0.4", default-features = false, optional = true }
 http.workspace = true
@@ -32,6 +33,7 @@ webauth-store-memory = { path = "../webauth-store-memory" }
 [features]
 default = []
 axum-core = ["dep:axum-core", "dep:async-trait"]
+password = ["dep:argon2"]
 
 [[example]]
 name = "session"

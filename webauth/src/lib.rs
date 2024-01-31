@@ -20,3 +20,11 @@ pub mod session {
     // Re-exports the Uuid we use
     pub use uuid::Uuid;
 }
+
+#[cfg(feature = "password")]
+#[path = "./password/mod.rs"]
+mod _password;
+#[cfg(feature = "password")]
+pub mod password {
+    pub use super::_password::{hash, verify};
+}
