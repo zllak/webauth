@@ -7,10 +7,10 @@ pub mod store {
     pub use super::_store::{Error, Store};
 }
 
-#[path = "./auth.rs"]
-mod _auth;
-pub mod auth {
-    pub use super::_auth::{AuthBackend, AuthUser};
+#[path = "./user.rs"]
+mod _user;
+pub mod user {
+    pub use super::_user::AuthUser;
 }
 
 #[path = "./session.rs"]
