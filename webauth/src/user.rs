@@ -22,6 +22,8 @@ where
     }
 }
 
+// ----------------------------------------------------------------------------
+
 #[derive(Debug, Clone)]
 pub struct UserManager<Service, User, Store>
 where
@@ -116,5 +118,41 @@ where
 
             Ok(res)
         })
+    }
+}
+
+// ----------------------------------------------------------------------------
+
+#[derive(Debug, Clone)]
+pub struct UserManagerLayer<Store, User>
+where
+    Store: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
+    User: AuthUser,
+{
+    store: Store,
+}
+
+impl<Store, User> UserManagerLayer<Store, User>
+where
+    Store: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
+    User: AuthUser,
+{
+    pub fn new(store: Store) -> Self {
+        Self { store }
+    }
+}
+
+impl<S, Store, User> tower_layer::Layer<S> for UserManagerLayer<Store, User>
+where
+    Store: crate::store::Store<Object = User, Id = <User as AuthUser>::Id> + Clone,
+    User: AuthUser,
+{
+    type Service = UserManager<S, User, Store>;
+
+    fn layer(&self, inner: S) -> Self::Service {
+        UserManager {
+            inner,
+            store: self.store.clone(),
+        }
     }
 }
