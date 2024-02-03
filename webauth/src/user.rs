@@ -2,6 +2,7 @@ use crate::session::{Session, SessionManager};
 use http::{Request, Response};
 use serde::Deserialize;
 use std::{fmt::Debug, future::Future, pin::Pin};
+use tower_cookies::CookieManager;
 use tower_service::Service;
 
 /// A User which can be authenticated and identified.
@@ -161,17 +162,18 @@ where
     StoreSession: crate::store::Store<Object = Session, Id = crate::session::Uuid> + Clone,
     User: AuthUser,
 {
-    type Service = SessionManager<UserManager<S, User, StoreUser>, StoreSession>;
+    type Service = CookieManager<SessionManager<UserManager<S, User, StoreUser>, StoreSession>>;
 
     fn layer(&self, inner: S) -> Self::Service {
         let user_manager = UserManager {
             inner,
             store: self.store_user.clone(),
         };
-        SessionManager {
+        let sess_manager = SessionManager {
             inner: user_manager,
             store: self.store_session.clone(),
             cookie_name: self.cookie_name,
-        }
+        };
+        CookieManager::new(sess_manager)
     }
 }
