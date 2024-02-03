@@ -10,7 +10,7 @@ pub mod store {
 #[path = "./user.rs"]
 mod _user;
 pub mod user {
-    pub use super::_user::AuthUser;
+    pub use super::_user::{AuthUser, UserManager, UserManagerLayer};
 }
 
 #[path = "./session.rs"]

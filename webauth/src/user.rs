@@ -1,4 +1,4 @@
-use crate::session::Session;
+use crate::session::{Session, SessionManager};
 use http::{Request, Response};
 use serde::Deserialize;
 use std::{fmt::Debug, future::Future, pin::Pin};
@@ -124,35 +124,54 @@ where
 // ----------------------------------------------------------------------------
 
 #[derive(Debug, Clone)]
-pub struct UserManagerLayer<Store, User>
+pub struct UserManagerLayer<StoreUser, StoreSession, User>
 where
-    Store: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
+    StoreUser: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
+    StoreSession: crate::store::Store<Object = Session, Id = crate::session::Uuid>,
     User: AuthUser,
 {
-    store: Store,
+    store_user: StoreUser,
+    store_session: StoreSession,
+    cookie_name: &'static str,
 }
 
-impl<Store, User> UserManagerLayer<Store, User>
+impl<StoreUser, StoreSession, User> UserManagerLayer<StoreUser, StoreSession, User>
 where
-    Store: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
+    StoreUser: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
+    StoreSession: crate::store::Store<Object = Session, Id = crate::session::Uuid>,
     User: AuthUser,
 {
-    pub fn new(store: Store) -> Self {
-        Self { store }
+    pub fn new(
+        store_session: StoreSession,
+        store_user: StoreUser,
+        cookie_name: &'static str,
+    ) -> Self {
+        Self {
+            store_session,
+            store_user,
+            cookie_name,
+        }
     }
 }
 
-impl<S, Store, User> tower_layer::Layer<S> for UserManagerLayer<Store, User>
+impl<S, StoreUser, StoreSession, User> tower_layer::Layer<S>
+    for UserManagerLayer<StoreUser, StoreSession, User>
 where
-    Store: crate::store::Store<Object = User, Id = <User as AuthUser>::Id> + Clone,
+    StoreUser: crate::store::Store<Object = User, Id = <User as AuthUser>::Id> + Clone,
+    StoreSession: crate::store::Store<Object = Session, Id = crate::session::Uuid> + Clone,
     User: AuthUser,
 {
-    type Service = UserManager<S, User, Store>;
+    type Service = SessionManager<UserManager<S, User, StoreUser>, StoreSession>;
 
     fn layer(&self, inner: S) -> Self::Service {
-        UserManager {
+        let user_manager = UserManager {
             inner,
-            store: self.store.clone(),
+            store: self.store_user.clone(),
+        };
+        SessionManager {
+            inner: user_manager,
+            store: self.store_session.clone(),
+            cookie_name: self.cookie_name,
         }
     }
 }

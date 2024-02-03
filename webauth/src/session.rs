@@ -134,9 +134,9 @@ pub struct SessionManager<Service, Store>
 where
     Store: crate::store::Store<Object = Session, Id = Uuid>,
 {
-    inner: Service,
-    store: Store,
-    cookie_name: &'static str,
+    pub(crate) inner: Service,
+    pub(crate) store: Store,
+    pub(crate) cookie_name: &'static str,
 }
 
 /// Implement the `Service` trait for `SessionManager`
