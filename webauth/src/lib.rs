@@ -1,5 +1,5 @@
 #[cfg(feature = "axum-core")]
-mod axum;
+pub mod axum;
 
 #[path = "./store.rs"]
 mod _store;
