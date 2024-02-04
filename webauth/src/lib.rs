@@ -4,13 +4,13 @@ pub mod axum;
 #[path = "./store.rs"]
 mod _store;
 pub mod store {
-    pub use super::_store::{Error, Store};
+    pub use super::_store::{Error, Identifiable, Store};
 }
 
 #[path = "./user.rs"]
 mod _user;
 pub mod user {
-    pub use super::_user::{AuthUser, UserManager, UserManagerLayer};
+    pub use super::_user::{UserManager, UserManagerLayer};
 }
 
 #[path = "./session.rs"]

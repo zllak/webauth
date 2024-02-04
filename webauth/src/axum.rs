@@ -1,5 +1,5 @@
 use crate::session::Session;
-use crate::user::AuthUser;
+use crate::store::Identifiable;
 use axum_core::extract::FromRequestParts;
 use http::{request::Parts, StatusCode};
 
@@ -25,12 +25,12 @@ where
 #[derive(Debug, Clone, Copy, Default)]
 pub struct ProtectedUser<U>(pub U);
 
-// Implement FromRequestParts for any type that implements AuthUser
+// Implement FromRequestParts for any type that implements Identifiable
 #[async_trait::async_trait]
 impl<S, U> FromRequestParts<S> for ProtectedUser<U>
 where
     S: Sync + Send,
-    U: AuthUser + Sync + Send + 'static,
+    U: Identifiable + Clone + Sync + Send + 'static,
 {
     type Rejection = (http::StatusCode, &'static str);
 
@@ -41,7 +41,7 @@ where
             .cloned()
             .ok_or((
                 http::StatusCode::INTERNAL_SERVER_ERROR,
-                "No AuthUser found, is the layer installed?",
+                "No Identifiable found, is the layer installed?",
             ))
             .map(|user| ProtectedUser(user))
     }

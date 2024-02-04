@@ -1,35 +1,20 @@
-use crate::session::{Session, SessionManager};
+use crate::{
+    _store::Identifiable,
+    session::{Session, SessionManager},
+};
 use http::{Request, Response};
 use serde::Deserialize;
 use std::{fmt::Debug, future::Future, pin::Pin};
 use tower_cookies::CookieManager;
 use tower_service::Service;
 
-/// A User which can be authenticated and identified.
-pub trait AuthUser: Debug + Clone {
-    type Id;
-
-    fn id(&self) -> Self::Id;
-}
-
-impl<U> AuthUser for &U
-where
-    U: AuthUser,
-{
-    type Id = U::Id;
-
-    fn id(&self) -> Self::Id {
-        (*self).id()
-    }
-}
-
 // ----------------------------------------------------------------------------
 
 #[derive(Debug, Clone)]
 pub struct UserManager<Service, User, Store>
 where
-    Store: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
-    User: AuthUser,
+    Store: crate::store::Store<Object = User>,
+    User: Identifiable,
 {
     inner: Service,
     store: Store,
@@ -41,9 +26,9 @@ where
     S::Future: Send,
     ReqBody: Send + 'static,
     ResBody: Default,
-    User: AuthUser + Send + Sync + 'static,
-    for<'de> <User as AuthUser>::Id: Send + std::fmt::Debug + Deserialize<'de>,
-    Store: crate::store::Store<Object = User, Id = <User as AuthUser>::Id> + Clone + Send + 'static,
+    User: Identifiable + Clone + Send + Sync + 'static,
+    for<'de> <User as Identifiable>::Uid: Send + std::fmt::Debug + Deserialize<'de>,
+    Store: crate::store::Store<Object = User> + Clone + Send + 'static,
 {
     type Response = S::Response;
     type Error = S::Error;
@@ -82,7 +67,7 @@ where
             };
 
             // Get the user_uid from the session
-            let user_uid = match session.get::<<User as AuthUser>::Id>("user_uid") {
+            let user_uid = match session.get::<<User as Identifiable>::Uid>("user_uid") {
                 Ok(Some(user_uid)) => user_uid,
                 Ok(None) => {
                     // Session not authenticated
@@ -127,9 +112,9 @@ where
 #[derive(Debug, Clone)]
 pub struct UserManagerLayer<StoreUser, StoreSession, User>
 where
-    StoreUser: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
-    StoreSession: crate::store::Store<Object = Session, Id = crate::session::Uuid>,
-    User: AuthUser,
+    StoreUser: crate::store::Store<Object = User>,
+    StoreSession: crate::store::Store<Object = Session>,
+    User: Identifiable,
 {
     store_user: StoreUser,
     store_session: StoreSession,
@@ -138,9 +123,9 @@ where
 
 impl<StoreUser, StoreSession, User> UserManagerLayer<StoreUser, StoreSession, User>
 where
-    StoreUser: crate::store::Store<Object = User, Id = <User as AuthUser>::Id>,
-    StoreSession: crate::store::Store<Object = Session, Id = crate::session::Uuid>,
-    User: AuthUser,
+    StoreUser: crate::store::Store<Object = User>,
+    StoreSession: crate::store::Store<Object = Session>,
+    User: Identifiable,
 {
     pub fn new(
         store_session: StoreSession,
@@ -158,9 +143,9 @@ where
 impl<S, StoreUser, StoreSession, User> tower_layer::Layer<S>
     for UserManagerLayer<StoreUser, StoreSession, User>
 where
-    StoreUser: crate::store::Store<Object = User, Id = <User as AuthUser>::Id> + Clone,
-    StoreSession: crate::store::Store<Object = Session, Id = crate::session::Uuid> + Clone,
-    User: AuthUser,
+    StoreUser: crate::store::Store<Object = User> + Clone,
+    StoreSession: crate::store::Store<Object = Session> + Clone,
+    User: Identifiable,
 {
     type Service = CookieManager<SessionManager<UserManager<S, User, StoreUser>, StoreSession>>;
 

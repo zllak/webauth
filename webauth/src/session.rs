@@ -1,3 +1,4 @@
+use crate::store::Identifiable;
 use http::{Request, Response};
 use serde::de::DeserializeOwned;
 use serde::Serialize;
@@ -53,11 +54,6 @@ impl Session {
             // Creating a new session using `new` makes it unsaved/modified
             modified: Arc::new(AtomicBool::new(true)),
         }
-    }
-
-    /// Returns the uniquer identifier of this `Session`.
-    pub const fn uid(&self) -> &Uuid {
-        &self.uid
     }
 
     /// Returns when the `Session` expires.
@@ -126,13 +122,21 @@ impl Session {
     }
 }
 
+impl Identifiable for Session {
+    type Uid = Uuid;
+
+    fn uid(&self) -> Self::Uid {
+        self.uid
+    }
+}
+
 // ----------------------------------------------------------------------------
 
 /// Manages sessions and implements Service
 #[derive(Debug, Clone)]
 pub struct SessionManager<Service, Store>
 where
-    Store: crate::store::Store<Object = Session, Id = Uuid>,
+    Store: crate::store::Store<Object = Session>,
 {
     pub(crate) inner: Service,
     pub(crate) store: Store,
@@ -146,7 +150,7 @@ where
     S::Future: Send,
     ReqBody: Send + 'static,
     ResBody: Default + Send,
-    Store: crate::store::Store<Object = Session, Id = Uuid> + Clone + Send + 'static,
+    Store: crate::store::Store<Object = Session> + Clone + Send + 'static,
 {
     type Response = S::Response;
     type Error = S::Error;
@@ -215,7 +219,7 @@ where
 
             // Save the session if modified
             if session.is_modified() {
-                if let Err(err) = store.save(session.uid(), &session).await {
+                if let Err(err) = store.save(&session).await {
                     tracing::error!(err = %err, "failed to save session");
 
                     // TODO: return 500
@@ -248,7 +252,7 @@ where
 #[derive(Debug, Clone)]
 pub struct SessionManagerLayer<S>
 where
-    S: crate::store::Store<Object = Session, Id = Uuid>,
+    S: crate::store::Store<Object = Session>,
 {
     store: S,
     cookie_name: &'static str,
@@ -256,7 +260,7 @@ where
 
 impl<Store> SessionManagerLayer<Store>
 where
-    Store: crate::store::Store<Object = Session, Id = Uuid>,
+    Store: crate::store::Store<Object = Session>,
 {
     pub fn new(store: Store, cookie_name: &'static str) -> Self {
         Self { store, cookie_name }
@@ -265,7 +269,7 @@ where
 
 impl<S, Store> tower_layer::Layer<S> for SessionManagerLayer<Store>
 where
-    Store: crate::store::Store<Object = Session, Id = Uuid> + Clone,
+    Store: crate::store::Store<Object = Session> + Clone,
 {
     type Service = CookieManager<SessionManager<S, Store>>;
 

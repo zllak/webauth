@@ -6,14 +6,22 @@ use std::{
     time::SystemTime,
 };
 use webauth::session::Session;
-use webauth::store::{Error, Store as StoreTrait};
+use webauth::store::{Error, Identifiable, Store as StoreTrait};
 
-#[derive(Default, Clone, Debug)]
-pub struct Store<Uid, Object> {
-    objects: Arc<Mutex<HashMap<Uid, Object>>>,
+#[derive(Default, Clone)]
+pub struct Store<Object>
+where
+    Object: Identifiable,
+    <Object as Identifiable>::Uid: Hash + Eq + Copy,
+{
+    objects: Arc<Mutex<HashMap<<Object as Identifiable>::Uid, Object>>>,
 }
 
-impl<Uid, Object> Store<Uid, Object> {
+impl<Object> Store<Object>
+where
+    Object: Identifiable,
+    <Object as Identifiable>::Uid: Hash + Eq + Copy,
+{
     pub fn new() -> Self {
         Self {
             objects: Default::default(),
@@ -21,17 +29,16 @@ impl<Uid, Object> Store<Uid, Object> {
     }
 }
 
-impl<Uid, Object> StoreTrait for Store<Uid, Object>
+impl<Object> StoreTrait for Store<Object>
 where
-    Uid: Hash + Eq + Copy,
-    Object: Clone + Send + 'static,
+    Object: Identifiable + Clone + Send + 'static,
+    <Object as Identifiable>::Uid: Hash + Eq + Copy,
 {
     type Object = Object;
-    type Id = Uid;
 
     fn load(
         &self,
-        id: &Self::Id,
+        id: &<Self::Object as Identifiable>::Uid,
     ) -> impl std::future::Future<Output = Result<Option<Self::Object>, Error>> + Send {
         let map = self.objects.lock().expect("poisoned mutex");
         let mut obj = map.get(id);
@@ -53,15 +60,17 @@ where
 
     fn save(
         &self,
-        id: &Self::Id,
         obj: &Self::Object,
     ) -> impl std::future::Future<Output = Result<(), Error>> + Send {
         let mut map = self.objects.lock().expect("poisoned mutex");
-        map.insert(*id, obj.clone());
+        map.insert(obj.uid(), obj.clone());
         async move { Ok(()) }
     }
 
-    fn delete(&self, id: &Self::Id) -> impl std::future::Future<Output = Result<(), Error>> + Send {
+    fn delete(
+        &self,
+        id: &<Self::Object as Identifiable>::Uid,
+    ) -> impl std::future::Future<Output = Result<(), Error>> + Send {
         let mut map = self.objects.lock().expect("poisoned mutex");
         map.remove(id);
         async move { Ok(()) }
