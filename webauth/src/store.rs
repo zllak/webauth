@@ -1,13 +1,29 @@
-use std::future::Future;
+use std::{fmt::Display, future::Future};
+
+#[derive(Debug)]
+pub enum LogicalError {
+    // TODO: this will be informed when implementing more complex stores
+    Something,
+}
+
+impl Display for LogicalError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Something => "something",
+            }
+        )
+    }
+}
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("encode")]
-    Encode,
-    #[error("decode")]
-    Decode,
-    #[error("backend")]
-    Backend,
+    #[error("logical: {0}")]
+    Logical(LogicalError),
+    #[error("storage: {0}")]
+    Storage(String),
 }
 
 /// An object that can be identified by a unique identifier.
